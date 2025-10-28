@@ -97,22 +97,22 @@ void explorarSalas(Sala *raiz) {
     char opcao;
 
     printf("\n>>> BEM-VINDO(A) ao Detective Quest! <<<\n");
-    printf("Voce deve explorar a mansao para encontrar o culpado.\n\n");
+    printf("Você deve explorar a mansão para encontrar o culpado.\n\n");
 
     // Loop de exploração: continua enquanto o jogador estiver em uma sala válida
     while (atual != NULL) {
         printf("===========================================\n");
-        printf("VOCE ESTA EM: %s\n", atual->nome);
+        printf("VOCÊ ESTA EM: %s\n", atual->nome);
 
         // Verifica se é um nó-folha (sem caminhos)
         if (atual->esquerda == NULL && atual->direita == NULL) {
-            printf("\n[FIM DA EXPLORACAO] Voce chegou a um comodo sem mais saidas (No Folha).\n");
-            printf("A investigacao neste caminho esta completa!\n");
+            printf("\n[FIM DA EXPLORAÇÃO] Você chegou a um comodo sem mais saidas (No Folha).\n");
+            printf("A investigação neste caminho esta completa!\n");
             break; // Encerra o loop, encerrando o jogo
         }
 
         printf("-------------------------------------------\n");
-        printf("Opcoes de caminho:\n");
+        printf("Opções de caminho:\n");
 
         // Informa as opções baseadas nos caminhos disponíveis
         if (atual->esquerda != NULL) {
@@ -141,20 +141,20 @@ void explorarSalas(Sala *raiz) {
                 // Navega para o cômodo da esquerda
                 atual = atual->esquerda;
             } else {
-                printf("[ALERTA] Nao ha caminho a esquerda a partir daqui! Tente outra opcao.\n");
+                printf("[ALERTA] Não há caminho a esquerda a partir daqui! Tente outra opcao.\n");
             }
         } else if (opcao == 'd') {
             if (atual->direita != NULL) {
                 // Navega para o cômodo da direita
                 atual = atual->direita;
             } else {
-                printf("[ALERTA] Nao ha caminho a direita a partir daqui! Tente outra opcao.\n");
+                printf("[ALERTA] Não há caminho a direita a partir daqui! Tente outra opção.\n");
             }
         } else if (opcao == 's') {
             printf("\nSaindo do jogo a pedido do jogador. Ate logo!\n");
             break;
         } else {
-            printf("[ERRO] Opcao invalida. Por favor, escolha 'e', 'd' ou 's'.\n");
+            printf("[ERRO] Opção invalida. Por favor, escolha 'e', 'd' ou 's'.\n");
         }
 
         printf("\n"); // Espaçamento para a próxima iteração
@@ -197,6 +197,6 @@ int main() {
     // Libera toda a memória alocada para o mapa após o término do jogo
     liberarMapa(mapa);
     
-    printf("\nMemoria do mapa liberada com sucesso.\n");
+    printf("\nMemória do mapa liberada com sucesso.\n");
     return 0;
 }
