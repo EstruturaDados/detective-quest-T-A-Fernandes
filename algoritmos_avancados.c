@@ -179,3 +179,24 @@ void liberarMapa(Sala *sala) {
         free(sala);
     }
 }
+
+// ------------------------------------------
+// 5. FUNÇÃO PRINCIPAL
+// ------------------------------------------
+
+/**
+ * @brief Monta o mapa inicial, dá início à exploração e gerencia a memória.
+ */
+int main() {
+    // Monta a estrutura da mansão (a árvore binária)
+    Sala *mapa = montarMapa();
+
+    // Inicia a exploração interativa a partir da raiz (Hall de Entrada)
+    explorarSalas(mapa);
+
+    // Libera toda a memória alocada para o mapa após o término do jogo
+    liberarMapa(mapa);
+    
+    printf("\nMemoria do mapa liberada com sucesso.\n");
+    return 0;
+}
