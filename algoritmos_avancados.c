@@ -81,3 +81,82 @@ Sala* montarMapa() {
     
     return hall;
 }
+
+// ------------------------------------------
+// 3. FUNÇÃO DE EXPLORAÇÃO INTERATIVA
+// ------------------------------------------
+
+/**
+ * @brief Permite a navegação interativa do jogador pela mansão (Árvore).
+ *
+ * Requisito: A exploração continua até o jogador alcançar um nó-folha.
+ * @param raiz O nó raiz da árvore (Hall de Entrada).
+ */
+void explorarSalas(Sala *raiz) {
+    Sala *atual = raiz;
+    char opcao;
+
+    printf("\n>>> BEM-VINDO(A) ao Detective Quest! <<<\n");
+    printf("Voce deve explorar a mansao para encontrar o culpado.\n\n");
+
+    // Loop de exploração: continua enquanto o jogador estiver em uma sala válida
+    while (atual != NULL) {
+        printf("===========================================\n");
+        printf("VOCE ESTA EM: %s\n", atual->nome);
+
+        // Verifica se é um nó-folha (sem caminhos)
+        if (atual->esquerda == NULL && atual->direita == NULL) {
+            printf("\n[FIM DA EXPLORACAO] Voce chegou a um comodo sem mais saidas (No Folha).\n");
+            printf("A investigacao neste caminho esta completa!\n");
+            break; // Encerra o loop, encerrando o jogo
+        }
+
+        printf("-------------------------------------------\n");
+        printf("Opcoes de caminho:\n");
+
+        // Informa as opções baseadas nos caminhos disponíveis
+        if (atual->esquerda != NULL) {
+            printf(" [E] Esquerda: %s\n", atual->esquerda->nome);
+        }
+        if (atual->direita != NULL) {
+            printf(" [D] Direita: %s\n", atual->direita->nome);
+        }
+        printf(" [S] Sair do Jogo.\n");
+        printf("-------------------------------------------\n");
+        printf("Sua escolha (e/d/s): ");
+
+        // Lendo a opção do usuário
+        if (scanf(" %c", &opcao) != 1) {
+            // Limpa o buffer em caso de erro de leitura
+            while (getchar() != '\n');
+            continue; // Volta ao início do loop
+        }
+        
+        // Converte a opção para minúscula para simplificar a comparação
+        opcao = tolower(opcao);
+
+        // Controle das decisões do jogador
+        if (opcao == 'e') {
+            if (atual->esquerda != NULL) {
+                // Navega para o cômodo da esquerda
+                atual = atual->esquerda;
+            } else {
+                printf("[ALERTA] Nao ha caminho a esquerda a partir daqui! Tente outra opcao.\n");
+            }
+        } else if (opcao == 'd') {
+            if (atual->direita != NULL) {
+                // Navega para o cômodo da direita
+                atual = atual->direita;
+            } else {
+                printf("[ALERTA] Nao ha caminho a direita a partir daqui! Tente outra opcao.\n");
+            }
+        } else if (opcao == 's') {
+            printf("\nSaindo do jogo a pedido do jogador. Ate logo!\n");
+            break;
+        } else {
+            printf("[ERRO] Opcao invalida. Por favor, escolha 'e', 'd' ou 's'.\n");
+        }
+
+        printf("\n"); // Espaçamento para a próxima iteração
+    }
+}
