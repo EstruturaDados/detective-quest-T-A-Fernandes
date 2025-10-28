@@ -160,3 +160,22 @@ void explorarSalas(Sala *raiz) {
         printf("\n"); // Espaçamento para a próxima iteração
     }
 }
+
+// ------------------------------------------
+// 4. FUNÇÃO DE LIBERAÇÃO DE MEMÓRIA
+// ------------------------------------------
+
+/**
+ * @brief Libera recursivamente a memória alocada para a árvore (mapa da mansão).
+ *
+ * Importante para evitar vazamento de memória.
+ * @param sala O nó atual a ser liberado.
+ */
+void liberarMapa(Sala *sala) {
+    if (sala != NULL) {
+        liberarMapa(sala->esquerda);
+        liberarMapa(sala->direita);
+        // printf("Liberando: %s\n", sala->nome); // Opcional: para debug
+        free(sala);
+    }
+}
