@@ -123,22 +123,66 @@ void liberarPistas(PistaNode *raiz) {
 }
 
 // ------------------------------------------
-// 4. FUNÇÃO DE LIBERAÇÃO DE MEMÓRIA
+// 4. FUNÇÕES DO MAPA (ÁRVORE BINÁRIA)
 // ------------------------------------------
 
 /**
- * @brief Libera recursivamente a memória alocada para a árvore (mapa da mansão).
+ * @brief Cria e inicializa um novo cômodo (nó) da mansão.
  *
- * Importante para evitar vazamento de memória.
- * @param sala O nó atual a ser liberado.
+ * Requisito: Cria dinamicamente um cômodo com nome e pista.
+ * @param nome O nome do cômodo.
+ * @param pista O conteúdo da pista (ou string vazia se não houver).
+ * @return Sala* Um ponteiro para a nova sala criada.
  */
-void liberarMapa(Sala *sala) {
-    if (sala != NULL) {
-        liberarMapa(sala->esquerda);
-        liberarMapa(sala->direita);
-        // printf("Liberando: %s\n", sala->nome); // Opcional: para debug
-        free(sala);
+Sala* criarSala(const char *nome, const char *pista) {
+    // Aloca dinamicamente o espaço para a nova sala
+    Sala *novaSala = (Sala*)malloc(sizeof(Sala));
+
+    if (novaSala == NULL) {
+        perror("Erro ao alocar memória para a sala.");
+        exit(EXIT_FAILURE);
     }
+
+    // Inicializa campos
+    strncpy(novaSala->nome, nome, MAX_NOME - 1);
+    novaSala->nome[MAX_NOME - 1] = '\0';
+    
+    strncpy(novaSala->pista, pista, MAX_PISTA - 1);
+    novaSala->pista[MAX_PISTA - 1] = '\0';
+
+    novaSala->esquerda = NULL;
+    novaSala->direita = NULL;
+
+    return novaSala;
+}
+
+/**
+ * @brief Constrói o mapa fixo da mansão como uma Árvore Binária, com pistas.
+ *
+ * Requisito: O mapa é fixo e pré-definido.
+ * @return Sala* O ponteiro para o nó Raiz (Hall de Entrada).
+ */
+Sala* montarMapa() {
+    // A cada sala, associamos uma pista. Se a string for vazia (""), não há pista.
+    
+    // Nível 0: Raiz
+    Sala *hall = criarSala("Hall de Entrada", "O culpado tem medo de alturas.");
+
+    // Nível 1
+    hall->esquerda = criarSala("Sala de Estar", ""); // Sem pista aqui
+    hall->direita = criarSala("Cozinha", "Uma faca de prata sumiu.");
+
+    // Nível 2
+    hall->esquerda->esquerda = criarSala("Quarto Principal", "O mordomo usava luvas."); // Esquerda da Sala de Estar
+    hall->esquerda->direita = criarSala("Biblioteca", "Um bilhete rasgado esta sob o tapete."); // Direita da Sala de Estar
+
+    hall->direita->direita = criarSala("Dispensa", "Cheiro forte de querosene."); // Direita da Cozinha
+    
+    // Nível 3 (Folhas)
+    hall->esquerda->esquerda->esquerda = criarSala("Banheiro", "Uma pegada enlameada foi deixada."); // Esquerda do Quarto Principal
+    hall->esquerda->direita->direita = criarSala("Jardim", ""); // Sem pista
+
+    return hall;
 }
 
 // ------------------------------------------
