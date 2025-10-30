@@ -1,13 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h> // Para a função tolower()
+#include <ctype.h>
 
 // ------------------------------------------
-// 1. CONSTANTES
+// 1. CONSTANTES E DEFINIÇÕES
 // ------------------------------------------
 #define MAX_NOME 50
 #define MAX_PISTA 100
+#define TAMANHO_HASH 7 // Tamanho primo para a Tabela Hash
+#define PISTAS_MINIMAS 2 // Requisito: Pelo menos 2 pistas para sustentar a acusacao
 
 // ------------------------------------------
 // 2. ESTRUTURAS DE DADOS
