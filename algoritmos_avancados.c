@@ -161,33 +161,65 @@ void liberarHash() {
 }
 
 // ------------------------------------------
-// 6. FUNÇÃO PRINCIPAL
+// 6. FUNÇÕES DA BST
 // ------------------------------------------
 
-int main() {
-    // 1. Monta o Mapa Fixo da Mansão
-    Sala *mapa = montarMapa();
-
-    // 2. Inicia a Exploração e Coleta de Pistas
-    explorarSalasComPistas(mapa);
-    
-    // 3. Exibe o resultado final (Pistas Ordenadas)
-    printf("\n********************************************************\n");
-    printf("        RELATORIO FINAL: PISTAS COLETADAS\n");
-    printf("        (Organizadas em Ordem Alfabetica)\n");
-    printf("********************************************************\n");
-    
-    if (raiz_pistas == NULL) {
-        printf("Nenhuma pista foi coletada durante a exploracao.\n");
-    } else {
-        exibirPistas(raiz_pistas);
+/**
+ * @brief Cria e aloca um novo nó para a BST de Pistas.
+ */
+PistaNode* criarPistaNode(const char *conteudo) {
+    PistaNode *novoNo = (PistaNode*)malloc(sizeof(PistaNode));
+    if (novoNo == NULL) {
+        perror("Erro ao alocar memoria para PistaNode.");
+        exit(EXIT_FAILURE);
     }
-    printf("********************************************************\n");
+    strncpy(novoNo->pista, conteudo, MAX_PISTA - 1);
+    novoNo->pista[MAX_PISTA - 1] = '\0';
+    novoNo->esquerda = NULL;
+    novoNo->direita = NULL;
+    return novoNo;
+}
 
-    // 4. Limpeza de Memória
-    liberarMapa(mapa);
-    liberarPistas(raiz_pistas);
-    
-    printf("\nSistema encerrado e memoria liberada.\n");
-    return 0;
+/**
+ * @brief Insere uma nova pista na BST de forma recursiva.
+ *
+ * Requisito: Armazenar as pistas coletadas em ordem.
+ */
+PistaNode* inserirPista(PistaNode *raiz, const char *conteudo) {
+    if (raiz == NULL) {
+        return criarPistaNode(conteudo);
+    }
+
+    int comparacao = strcmp(conteudo, raiz->pista);
+
+    if (comparacao < 0) {
+        raiz->esquerda = inserirPista(raiz->esquerda, conteudo);
+    } else if (comparacao > 0) {
+        raiz->direita = inserirPista(raiz->direita, conteudo);
+    } 
+    // Ignora duplicatas
+
+    return raiz;
+}
+
+/**
+ * @brief Exibe todas as pistas coletadas (Percurso Em Ordem).
+ */
+void exibirPistas(PistaNode *raiz) {
+    if (raiz != NULL) {
+        exibirPistas(raiz->esquerda); 
+        printf("- %s\n", raiz->pista); 
+        exibirPistas(raiz->direita);
+    }
+}
+
+/**
+ * @brief Libera recursivamente a memória alocada para a BST de pistas.
+ */
+void liberarPistas(PistaNode *raiz) {
+    if (raiz != NULL) {
+        liberarPistas(raiz->esquerda);
+        liberarPistas(raiz->direita);
+        free(raiz);
+    }
 }
