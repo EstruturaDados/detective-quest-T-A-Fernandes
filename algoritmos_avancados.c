@@ -69,101 +69,94 @@ TabelaHash tabela_suspeitos;
 
 
 // ------------------------------------------
-// 5. FUNÇÃO DE EXPLORAÇÃO E COLETA
+// 5. FUNÇÕES DA TABELA HASH
 // ------------------------------------------
 
 /**
- * @brief Controla a navegação do jogador, exibe informações e coleta pistas.
- *
- * Requisito: Adicionar automaticamente à BST cada pista encontrada.
- * @param raiz O nó raiz da árvore (Hall de Entrada).
+ * @brief Inicializa todos os baldes (buckets) da Tabela Hash como NULL.
  */
-void explorarSalasComPistas(Sala *raiz) {
-    Sala *atual = raiz;
-    char opcao;
-    
-    printf("\n>>> BEM-VINDO(A) ao Detective Quest - Coleta de Pistas! <<<\n");
-    printf("Explore a mansao e encontre as pistas essenciais.\n\n");
-
-    // Loop de exploração: continua até o usuário decidir 's' (sair)
-    while (atual != NULL) {
-        printf("========================================================\n");
-        printf("VOCE ESTA EM: %s\n", atual->nome);
-
-        // Lógica de coleta de pista
-        if (atual->pista[0] != '\0') {
-            // Verifica se a pista já foi coletada (usando a BST como referência)
-            // Para simplificação, vamos apenas inserir, e a BST gerencia duplicatas.
-            
-            // Requisito: Adicionar automaticamente à árvore de pistas.
-            raiz_pistas = inserirPista(raiz_pistas, atual->pista);
-            
-            printf("[PISTA ENCONTRADA] Coletado: \"%s\"\n", atual->pista);
-            // Zera a pista da sala para que não seja coletada novamente
-            atual->pista[0] = '\0'; 
-        } else {
-            printf("[INFO] Nenhuma pista foi encontrada neste comodo (ou ja foi coletada).\n");
-        }
-        
-        printf("--------------------------------------------------------\n");
-        printf("Opcoes de caminho:\n");
-
-        int caminhos_disponiveis = 0;
-        if (atual->esquerda != NULL) {
-            printf(" [E] Esquerda: %s\n", atual->esquerda->nome);
-            caminhos_disponiveis = 1;
-        }
-        if (atual->direita != NULL) {
-            printf(" [D] Direita: %s\n", atual->direita->nome);
-            caminhos_disponiveis = 1;
-        }
-
-        if (!caminhos_disponiveis) {
-            printf("[FIM DE CAMINHO] Nenhuma saida adicional. Voce pode apenas sair.\n");
-        }
-
-        printf(" [S] Sair do Jogo e Analisar Pistas.\n");
-        printf("--------------------------------------------------------\n");
-        printf("Sua escolha (e/d/s): ");
-
-        // Lendo a opção do usuário
-        if (scanf(" %c", &opcao) != 1) {
-            while (getchar() != '\n');
-            opcao = 's'; // Assume sair em caso de entrada inválida
-        }
-        opcao = tolower(opcao);
-
-        // Controle das decisões
-        if (opcao == 'e') {
-            if (atual->esquerda != NULL) {
-                atual = atual->esquerda;
-            } else {
-                printf("[ALERTA] Nao ha caminho a esquerda a partir daqui.\n");
-            }
-        } else if (opcao == 'd') {
-            if (atual->direita != NULL) {
-                atual = atual->direita;
-            } else {
-                printf("[ALERTA] Nao ha caminho a direita a partir daqui.\n");
-            }
-        } else if (opcao == 's') {
-            printf("\nSaindo da exploracao para analise final...\n");
-            break;
-        } else {
-            printf("[ERRO] Opcao invalida. Por favor, escolha 'e', 'd' ou 's'.\n");
-        }
-        printf("\n");
+void inicializarHash() {
+    for (int i = 0; i < TAMANHO_HASH; i++) {
+        tabela_suspeitos.tabela[i] = NULL;
     }
 }
 
 /**
- * @brief Libera recursivamente a memória alocada para o mapa da mansão.
+ * @brief Função Hash simples (Soma dos ASCII mod TAMANHO_HASH).
+ *
+ * @param chave A string (pista) a ser mapeada.
+ * @return int O índice na tabela.
  */
-void liberarMapa(Sala *sala) {
-    if (sala != NULL) {
-        liberarMapa(sala->esquerda);
-        liberarMapa(sala->direita);
-        free(sala);
+int calcularHash(const char *chave) {
+    int hash = 0;
+    for (int i = 0; chave[i] != '\0'; i++) {
+        hash = (hash + (int)chave[i]);
+    }
+    return hash % TAMANHO_HASH;
+}
+
+/**
+ * @brief Insere a associação Pista (Chave) -> Suspeito (Valor) na Tabela Hash.
+ *
+ * Requisito: Inserir associação pista/suspeito na tabela hash.
+ * @param pista A chave (pista) a ser inserida.
+ * @param suspeito O valor (suspeito) associado à pista.
+ */
+void inserirNaHash(const char *pista, const char *suspeito) {
+    int indice = calcularHash(pista);
+    HashNode *novoNo = (HashNode*)malloc(sizeof(HashNode));
+    
+    if (novoNo == NULL) {
+        perror("Erro ao alocar memoria para HashNode.");
+        exit(EXIT_FAILURE);
+    }
+    
+    // Configura o novo nó
+    strncpy(novoNo->pista, pista, MAX_PISTA - 1);
+    strncpy(novoNo->suspeito, suspeito, MAX_NOME - 1);
+    novoNo->proximo = NULL;
+
+    // Encademento Separado: Insere no início da lista do balde
+    novoNo->proximo = tabela_suspeitos.tabela[indice];
+    tabela_suspeitos.tabela[indice] = novoNo;
+    
+    printf("  [HASH REGISTRO] Pista associada a '%s' (indice %d).\n", suspeito, indice);
+}
+
+/**
+ * @brief Consulta a Tabela Hash para encontrar o suspeito associado a uma pista.
+ *
+ * Requisito: Consultar o suspeito correspondente a uma pista.
+ * @param pista A chave (pista) a ser procurada.
+ * @return char* O nome do suspeito, ou "DESCONHECIDO" se não encontrado.
+ */
+const char* encontrarSuspeito(const char *pista) {
+    int indice = calcularHash(pista);
+    HashNode *atual = tabela_suspeitos.tabela[indice];
+    
+    // Percorre a lista ligada (Encadeamento)
+    while (atual != NULL) {
+        if (strcmp(atual->pista, pista) == 0) {
+            return atual->suspeito; // Suspeito encontrado
+        }
+        atual = atual->proximo;
+    }
+    
+    return "DESCONHECIDO"; // Pista sem associação na Hash
+}
+
+/**
+ * @brief Libera a memória alocada para a Tabela Hash.
+ */
+void liberarHash() {
+    for (int i = 0; i < TAMANHO_HASH; i++) {
+        HashNode *atual = tabela_suspeitos.tabela[i];
+        while (atual != NULL) {
+            HashNode *temp = atual;
+            atual = atual->proximo;
+            free(temp);
+        }
+        tabela_suspeitos.tabela[i] = NULL;
     }
 }
 
