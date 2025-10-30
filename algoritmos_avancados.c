@@ -223,3 +223,66 @@ void liberarPistas(PistaNode *raiz) {
         free(raiz);
     }
 }
+
+// ------------------------------------------
+// 7. FUNÇÕES DO MAPA (ÁRVORE BINÁRIA)
+// ------------------------------------------
+
+/**
+ * @brief Cria e inicializa um novo cômodo (nó) da mansão.
+ *
+ * Requisito: Cria dinamicamente um cômodo com nome e pista estática.
+ * @param nome O nome do cômodo.
+ * @param pista O conteúdo da pista estática da sala.
+ * @return Sala* Um ponteiro para a nova sala criada.
+ */
+Sala* criarSala(const char *nome, const char *pista) {
+    Sala *novaSala = (Sala*)malloc(sizeof(Sala));
+    if (novaSala == NULL) {
+        perror("Erro ao alocar memoria para a sala.");
+        exit(EXIT_FAILURE);
+    }
+
+    strncpy(novaSala->nome, nome, MAX_NOME - 1);
+    strncpy(novaSala->pista_estatica, pista, MAX_PISTA - 1);
+    novaSala->pista_coletada = 0; // Pista não coletada inicialmente
+
+    novaSala->esquerda = NULL;
+    novaSala->direita = NULL;
+
+    return novaSala;
+}
+
+/**
+ * @brief Constrói o mapa fixo da mansão (Árvore Binária) e configura as pistas.
+ *
+ * As pistas estão associadas à sala e serão coletadas apenas uma vez.
+ * @return Sala* O ponteiro para o nó Raiz (Hall de Entrada).
+ */
+Sala* montarMapa() {
+    // Definindo o mapa e as pistas estáticas
+    Sala *hall = criarSala("Hall de Entrada", "A altura do culpado e acima de 1.80m.");
+
+    hall->esquerda = criarSala("Sala de Estar", "O culpado fuma charutos cubanos.");
+    hall->direita = criarSala("Cozinha", "O culpado possui uma alergia a amendoim.");
+
+    hall->esquerda->esquerda = criarSala("Quarto Principal", "O culpado tem um relogio suico de ouro.");
+    hall->esquerda->direita = criarSala("Biblioteca", "A arma do crime e um castical de bronze.");
+
+    hall->direita->direita = criarSala("Dispensa", "O culpado deixou um lenco bordado com a letra 'C'."); 
+    
+    hall->esquerda->esquerda->esquerda = criarSala("Banheiro", "A digital do culpado esta na lamina da faca.");
+
+    return hall;
+}
+
+/**
+ * @brief Libera recursivamente a memória alocada para o mapa da mansão.
+ */
+void liberarMapa(Sala *sala) {
+    if (sala != NULL) {
+        liberarMapa(sala->esquerda);
+        liberarMapa(sala->direita);
+        free(sala);
+    }
+}
