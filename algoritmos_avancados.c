@@ -49,67 +49,24 @@ typedef struct PistaNode {
 } PistaNode;
 
 // ------------------------------------------
-// 4. FUNÇÕES DO MAPA (ÁRVORE BINÁRIA)
+// 4. ESTRUTURA DO MAPA (Árvore Binária)
 // ------------------------------------------
 
 /**
- * @brief Cria e inicializa um novo cômodo (nó) da mansão.
- *
- * Requisito: Cria dinamicamente um cômodo com nome e pista.
- * @param nome O nome do cômodo.
- * @param pista O conteúdo da pista (ou string vazia se não houver).
- * @return Sala* Um ponteiro para a nova sala criada.
+ * @brief Estrutura que representa um Cômodo (Nó) da mansão.
  */
-Sala* criarSala(const char *nome, const char *pista) {
-    // Aloca dinamicamente o espaço para a nova sala
-    Sala *novaSala = (Sala*)malloc(sizeof(Sala));
+typedef struct Sala {
+    char nome[MAX_NOME];
+    char pista_estatica[MAX_PISTA]; // Pista original associada à sala
+    int pista_coletada;             // Flag: 1 se coletada, 0 caso contrário
+    struct Sala *esquerda;
+    struct Sala *direita;
+} Sala;
 
-    if (novaSala == NULL) {
-        perror("Erro ao alocar memória para a sala.");
-        exit(EXIT_FAILURE);
-    }
+// Ponteiros globais
+PistaNode *raiz_pistas = NULL;
+TabelaHash tabela_suspeitos; 
 
-    // Inicializa campos
-    strncpy(novaSala->nome, nome, MAX_NOME - 1);
-    novaSala->nome[MAX_NOME - 1] = '\0';
-    
-    strncpy(novaSala->pista, pista, MAX_PISTA - 1);
-    novaSala->pista[MAX_PISTA - 1] = '\0';
-
-    novaSala->esquerda = NULL;
-    novaSala->direita = NULL;
-
-    return novaSala;
-}
-
-/**
- * @brief Constrói o mapa fixo da mansão como uma Árvore Binária, com pistas.
- *
- * Requisito: O mapa é fixo e pré-definido.
- * @return Sala* O ponteiro para o nó Raiz (Hall de Entrada).
- */
-Sala* montarMapa() {
-    // A cada sala, associamos uma pista. Se a string for vazia (""), não há pista.
-    
-    // Nível 0: Raiz
-    Sala *hall = criarSala("Hall de Entrada", "O culpado tem medo de alturas.");
-
-    // Nível 1
-    hall->esquerda = criarSala("Sala de Estar", ""); // Sem pista aqui
-    hall->direita = criarSala("Cozinha", "Uma faca de prata sumiu.");
-
-    // Nível 2
-    hall->esquerda->esquerda = criarSala("Quarto Principal", "O mordomo usava luvas."); // Esquerda da Sala de Estar
-    hall->esquerda->direita = criarSala("Biblioteca", "Um bilhete rasgado esta sob o tapete."); // Direita da Sala de Estar
-
-    hall->direita->direita = criarSala("Dispensa", "Cheiro forte de querosene."); // Direita da Cozinha
-    
-    // Nível 3 (Folhas)
-    hall->esquerda->esquerda->esquerda = criarSala("Banheiro", "Uma pegada enlameada foi deixada."); // Esquerda do Quarto Principal
-    hall->esquerda->direita->direita = criarSala("Jardim", ""); // Sem pista
-
-    return hall;
-}
 
 // ------------------------------------------
 // 5. FUNÇÃO DE EXPLORAÇÃO E COLETA
