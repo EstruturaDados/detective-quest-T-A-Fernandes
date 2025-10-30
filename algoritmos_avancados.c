@@ -286,3 +286,76 @@ void liberarMapa(Sala *sala) {
         free(sala);
     }
 }
+
+// ------------------------------------------
+// 8. FUNÇÃO DE JULGAMENTO FINAL
+// ------------------------------------------
+
+/**
+ * @brief Conta recursivamente quantas pistas na BST apontam para o suspeito acusado.
+ *
+ * @param no O nó atual da BST (pista coletada).
+ * @param acusado O nome do suspeito acusado.
+ * @return int A contagem de pistas que sustentam a acusação.
+ */
+int contarPistasParaSuspeito(PistaNode *no, const char *acusado) {
+    if (no == NULL) {
+        return 0;
+    }
+    
+    int count = 0;
+    
+    // 1. Visita o nó atual: verifica se esta pista aponta para o acusado
+    const char *suspeito_apontado = encontrarSuspeito(no->pista);
+    if (strcmp(suspeito_apontado, acusado) == 0) {
+        count = 1;
+    }
+    
+    // 2. Soma as contagens das subárvores
+    count += contarPistasParaSuspeito(no->esquerda, acusado);
+    count += contarPistasParaSuspeito(no->direita, acusado);
+    
+    return count;
+}
+
+/**
+ * @brief Conduz a fase de julgamento final.
+ *
+ * Requisito: Verificar se pelo menos duas pistas apontam para o suspeito acusado.
+ */
+void verificarSuspeitoFinal() {
+    char acusado[MAX_NOME];
+    
+    printf("\n\n********************************************************\n");
+    printf("            FASE DE JULGAMENTO FINAL\n");
+    printf("********************************************************\n");
+    
+    printf("Voce analisou as pistas coletadas:\n");
+    exibirPistas(raiz_pistas);
+    printf("--------------------------------------------------------\n");
+    
+    printf("Insira o nome do SUSPEITO que voce acusa (Ex: 'Camila', 'Carlos', 'Cris'): ");
+    // Lê o nome do suspeito acusado
+    if (scanf(" %49s", acusado) != 1) {
+        printf("[ERRO] Entrada invalida. Julgamento encerrado.\n");
+        return;
+    }
+
+    printf("\nACUSADO: %s\n", acusado);
+    printf("ANALISANDO as pistas coletadas...\n");
+
+    // Requisito: Contar as pistas que apontam para o acusado
+    int total_pistas = contarPistasParaSuspeito(raiz_pistas, acusado);
+
+    printf("Pistas que apontam para %s: %d\n", acusado, total_pistas);
+
+    // Requisito: Verificar se, pelo menos, duas pistas sustentam a acusação
+    if (total_pistas >= PISTAS_MINIMAS) {
+        printf("\n=> [VEREDITO: CULPADO!] A acusacao e sustentada por %d pistas.\n", total_pistas);
+        printf("A justica foi feita! Parabens, Detetive.\n");
+    } else {
+        printf("\n=> [VEREDITO: INSUFICIENTE!] Apenas %d pistas apoiam a acusacao.\n", total_pistas);
+        printf("Nao ha provas suficientes. O culpado escapou! Continue a investigar.\n");
+    }
+    printf("********************************************************\n");
+}
