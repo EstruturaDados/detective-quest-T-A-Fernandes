@@ -12,35 +12,28 @@
 #define PISTAS_MINIMAS 2 // Requisito: Pelo menos 2 pistas para sustentar a acusacao
 
 // ------------------------------------------
-// 2. ESTRUTURAS DE DADOS
+// 2. ESTRUTURAS DA TABELA HASH (Suspeitos por Pista)
 // ------------------------------------------
 
 /**
- * @brief Estrutura que representa um nó da Árvore Binária de Busca (BST) de Pistas.
+ * @brief Estrutura de um Nó de Lista Ligada para o Encademento da Hash.
  *
- * Requisito: BST para armazenar e organizar as pistas.
+ * Armazena a pista (chave) e o suspeito (valor) associado.
  */
-typedef struct PistaNode {
+typedef struct HashNode {
     char pista[MAX_PISTA];
-    struct PistaNode *esquerda; // Pistas lexicograficamente menores
-    struct PistaNode *direita;  // Pistas lexicograficamente maiores
-} PistaNode;
+    char suspeito[MAX_NOME];
+    struct HashNode *proximo;
+} HashNode;
 
 /**
- * @brief Estrutura que representa um Cômodo (Nó) da mansão.
+ * @brief Estrutura da Tabela Hash usando Encademento Separado.
  *
- * Requisito: Cada cômodo tem nome e, opcionalmente, uma pista.
+ * Cada índice do vetor aponta para uma lista ligada (HashNode).
  */
-typedef struct Sala {
-    char nome[MAX_NOME];
-    char pista[MAX_PISTA]; // Conteúdo da pista na sala (pode ser vazio)
-    struct Sala *esquerda;  // Caminho à esquerda
-    struct Sala *direita;   // Caminho à direita
-} Sala;
-
-// Ponteiro global para a BST de Pistas. 
-// O mapa (Sala) é separado do registro de pistas (BST).
-PistaNode *raiz_pistas = NULL;
+typedef struct {
+    HashNode *tabela[TAMANHO_HASH];
+} TabelaHash;
 
 // ------------------------------------------
 // 3. FUNÇÕES DA BST (ÁRVORE DE PISTAS)
