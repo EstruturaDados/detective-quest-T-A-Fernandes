@@ -186,22 +186,100 @@ Sala* montarMapa() {
 }
 
 // ------------------------------------------
-// 5. FUNÇÃO PRINCIPAL
+// 5. FUNÇÃO DE EXPLORAÇÃO E COLETA
 // ------------------------------------------
 
 /**
- * @brief Monta o mapa inicial, dá início à exploração e gerencia a memória.
+ * @brief Controla a navegação do jogador, exibe informações e coleta pistas.
+ *
+ * Requisito: Adicionar automaticamente à BST cada pista encontrada.
+ * @param raiz O nó raiz da árvore (Hall de Entrada).
  */
-int main() {
-    // Monta a estrutura da mansão (a árvore binária)
-    Sala *mapa = montarMapa();
-
-    // Inicia a exploração interativa a partir da raiz (Hall de Entrada)
-    explorarSalas(mapa);
-
-    // Libera toda a memória alocada para o mapa após o término do jogo
-    liberarMapa(mapa);
+void explorarSalasComPistas(Sala *raiz) {
+    Sala *atual = raiz;
+    char opcao;
     
-    printf("\nMemória do mapa liberada com sucesso.\n");
-    return 0;
+    printf("\n>>> BEM-VINDO(A) ao Detective Quest - Coleta de Pistas! <<<\n");
+    printf("Explore a mansao e encontre as pistas essenciais.\n\n");
+
+    // Loop de exploração: continua até o usuário decidir 's' (sair)
+    while (atual != NULL) {
+        printf("========================================================\n");
+        printf("VOCE ESTA EM: %s\n", atual->nome);
+
+        // Lógica de coleta de pista
+        if (atual->pista[0] != '\0') {
+            // Verifica se a pista já foi coletada (usando a BST como referência)
+            // Para simplificação, vamos apenas inserir, e a BST gerencia duplicatas.
+            
+            // Requisito: Adicionar automaticamente à árvore de pistas.
+            raiz_pistas = inserirPista(raiz_pistas, atual->pista);
+            
+            printf("[PISTA ENCONTRADA] Coletado: \"%s\"\n", atual->pista);
+            // Zera a pista da sala para que não seja coletada novamente
+            atual->pista[0] = '\0'; 
+        } else {
+            printf("[INFO] Nenhuma pista foi encontrada neste comodo (ou ja foi coletada).\n");
+        }
+        
+        printf("--------------------------------------------------------\n");
+        printf("Opcoes de caminho:\n");
+
+        int caminhos_disponiveis = 0;
+        if (atual->esquerda != NULL) {
+            printf(" [E] Esquerda: %s\n", atual->esquerda->nome);
+            caminhos_disponiveis = 1;
+        }
+        if (atual->direita != NULL) {
+            printf(" [D] Direita: %s\n", atual->direita->nome);
+            caminhos_disponiveis = 1;
+        }
+
+        if (!caminhos_disponiveis) {
+            printf("[FIM DE CAMINHO] Nenhuma saida adicional. Voce pode apenas sair.\n");
+        }
+
+        printf(" [S] Sair do Jogo e Analisar Pistas.\n");
+        printf("--------------------------------------------------------\n");
+        printf("Sua escolha (e/d/s): ");
+
+        // Lendo a opção do usuário
+        if (scanf(" %c", &opcao) != 1) {
+            while (getchar() != '\n');
+            opcao = 's'; // Assume sair em caso de entrada inválida
+        }
+        opcao = tolower(opcao);
+
+        // Controle das decisões
+        if (opcao == 'e') {
+            if (atual->esquerda != NULL) {
+                atual = atual->esquerda;
+            } else {
+                printf("[ALERTA] Nao ha caminho a esquerda a partir daqui.\n");
+            }
+        } else if (opcao == 'd') {
+            if (atual->direita != NULL) {
+                atual = atual->direita;
+            } else {
+                printf("[ALERTA] Nao ha caminho a direita a partir daqui.\n");
+            }
+        } else if (opcao == 's') {
+            printf("\nSaindo da exploracao para analise final...\n");
+            break;
+        } else {
+            printf("[ERRO] Opcao invalida. Por favor, escolha 'e', 'd' ou 's'.\n");
+        }
+        printf("\n");
+    }
+}
+
+/**
+ * @brief Libera recursivamente a memória alocada para o mapa da mansão.
+ */
+void liberarMapa(Sala *sala) {
+    if (sala != NULL) {
+        liberarMapa(sala->esquerda);
+        liberarMapa(sala->direita);
+        free(sala);
+    }
 }
