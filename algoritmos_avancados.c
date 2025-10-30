@@ -41,81 +41,84 @@ typedef struct Sala {
 PistaNode *raiz_pistas = NULL;
 
 // ------------------------------------------
-// 3. FUNÇÃO DE EXPLORAÇÃO INTERATIVA
+// 3. FUNÇÕES DA BST (ÁRVORE DE PISTAS)
 // ------------------------------------------
 
 /**
- * @brief Permite a navegação interativa do jogador pela mansão (Árvore).
+ * @brief Cria e aloca um novo nó para a BST de Pistas.
  *
- * Requisito: A exploração continua até o jogador alcançar um nó-folha.
- * @param raiz O nó raiz da árvore (Hall de Entrada).
+ * @param conteudo A string da pista a ser armazenada.
+ * @return PistaNode* O ponteiro para o novo nó criado.
  */
-void explorarSalas(Sala *raiz) {
-    Sala *atual = raiz;
-    char opcao;
+PistaNode* criarPistaNode(const char *conteudo) {
+    PistaNode *novoNo = (PistaNode*)malloc(sizeof(PistaNode));
+    if (novoNo == NULL) {
+        perror("Erro ao alocar memória para o nó da pista.");
+        exit(EXIT_FAILURE);
+    }
+    strncpy(novoNo->pista, conteudo, MAX_PISTA - 1);
+    novoNo->pista[MAX_PISTA - 1] = '\0';
+    novoNo->esquerda = NULL;
+    novoNo->direita = NULL;
+    return novoNo;
+}
 
-    printf("\n>>> BEM-VINDO(A) ao Detective Quest! <<<\n");
-    printf("Você deve explorar a mansão para encontrar o culpado.\n\n");
+/**
+ * @brief Insere uma nova pista na Árvore Binária de Busca (BST) de forma recursiva.
+ *
+ * Requisito: Armazenar as pistas coletadas. A BST garante a ordenação.
+ * @param raiz O nó atual da BST.
+ * @param conteudo A pista a ser inserida.
+ * @return PistaNode* A nova raiz da subárvore após a inserção.
+ */
+PistaNode* inserirPista(PistaNode *raiz, const char *conteudo) {
+    // Caso base: Se a subárvore estiver vazia, cria um novo nó e o retorna
+    if (raiz == NULL) {
+        return criarPistaNode(conteudo);
+    }
 
-    // Loop de exploração: continua enquanto o jogador estiver em uma sala válida
-    while (atual != NULL) {
-        printf("===========================================\n");
-        printf("VOCÊ ESTA EM: %s\n", atual->nome);
+    // Compara as strings para decidir o caminho (BST)
+    int comparacao = strcmp(conteudo, raiz->pista);
 
-        // Verifica se é um nó-folha (sem caminhos)
-        if (atual->esquerda == NULL && atual->direita == NULL) {
-            printf("\n[FIM DA EXPLORAÇÃO] Você chegou a um comodo sem mais saidas (No Folha).\n");
-            printf("A investigação neste caminho esta completa!\n");
-            break; // Encerra o loop, encerrando o jogo
-        }
+    if (comparacao < 0) {
+        // A nova pista é lexicograficamente MENOR: vai para a esquerda
+        raiz->esquerda = inserirPista(raiz->esquerda, conteudo);
+    } else if (comparacao > 0) {
+        // A nova pista é lexicograficamente MAIOR: vai para a direita
+        raiz->direita = inserirPista(raiz->direita, conteudo);
+    } 
+    // Se comparacao == 0, a pista é idêntica; não inserimos duplicatas (ignoramos).
 
-        printf("-------------------------------------------\n");
-        printf("Opções de caminho:\n");
+    return raiz;
+}
 
-        // Informa as opções baseadas nos caminhos disponíveis
-        if (atual->esquerda != NULL) {
-            printf(" [E] Esquerda: %s\n", atual->esquerda->nome);
-        }
-        if (atual->direita != NULL) {
-            printf(" [D] Direita: %s\n", atual->direita->nome);
-        }
-        printf(" [S] Sair do Jogo.\n");
-        printf("-------------------------------------------\n");
-        printf("Sua escolha (e/d/s): ");
-
-        // Lendo a opção do usuário
-        if (scanf(" %c", &opcao) != 1) {
-            // Limpa o buffer em caso de erro de leitura
-            while (getchar() != '\n');
-            continue; // Volta ao início do loop
-        }
+/**
+ * @brief Exibe todas as pistas coletadas na BST em ordem alfabética (Percurso Em Ordem).
+ *
+ * Requisito: Exibir todas as pistas coletadas em ordem alfabética ao final.
+ * @param raiz O nó atual da BST.
+ */
+void exibirPistas(PistaNode *raiz) {
+    if (raiz != NULL) {
+        // 1. Percorre a esquerda (menores)
+        exibirPistas(raiz->esquerda); 
         
-        // Converte a opção para minúscula para simplificar a comparação
-        opcao = tolower(opcao);
+        // 2. Visita o nó atual (imprime a pista)
+        printf("- %s\n", raiz->pista); 
+        
+        // 3. Percorre a direita (maiores)
+        exibirPistas(raiz->direita);
+    }
+}
 
-        // Controle das decisões do jogador
-        if (opcao == 'e') {
-            if (atual->esquerda != NULL) {
-                // Navega para o cômodo da esquerda
-                atual = atual->esquerda;
-            } else {
-                printf("[ALERTA] Não há caminho a esquerda a partir daqui! Tente outra opcao.\n");
-            }
-        } else if (opcao == 'd') {
-            if (atual->direita != NULL) {
-                // Navega para o cômodo da direita
-                atual = atual->direita;
-            } else {
-                printf("[ALERTA] Não há caminho a direita a partir daqui! Tente outra opção.\n");
-            }
-        } else if (opcao == 's') {
-            printf("\nSaindo do jogo a pedido do jogador. Ate logo!\n");
-            break;
-        } else {
-            printf("[ERRO] Opção invalida. Por favor, escolha 'e', 'd' ou 's'.\n");
-        }
-
-        printf("\n"); // Espaçamento para a próxima iteração
+/**
+ * @brief Libera recursivamente a memória alocada para a BST de pistas.
+ */
+void liberarPistas(PistaNode *raiz) {
+    if (raiz != NULL) {
+        liberarPistas(raiz->esquerda);
+        liberarPistas(raiz->direita);
+        free(raiz);
     }
 }
 
