@@ -283,3 +283,35 @@ void liberarMapa(Sala *sala) {
         free(sala);
     }
 }
+
+// ------------------------------------------
+// 6. FUNÇÃO PRINCIPAL
+// ------------------------------------------
+
+int main() {
+    // 1. Monta o Mapa Fixo da Mansão
+    Sala *mapa = montarMapa();
+
+    // 2. Inicia a Exploração e Coleta de Pistas
+    explorarSalasComPistas(mapa);
+    
+    // 3. Exibe o resultado final (Pistas Ordenadas)
+    printf("\n********************************************************\n");
+    printf("        RELATORIO FINAL: PISTAS COLETADAS\n");
+    printf("        (Organizadas em Ordem Alfabetica)\n");
+    printf("********************************************************\n");
+    
+    if (raiz_pistas == NULL) {
+        printf("Nenhuma pista foi coletada durante a exploracao.\n");
+    } else {
+        exibirPistas(raiz_pistas);
+    }
+    printf("********************************************************\n");
+
+    // 4. Limpeza de Memória
+    liberarMapa(mapa);
+    liberarPistas(raiz_pistas);
+    
+    printf("\nSistema encerrado e memoria liberada.\n");
+    return 0;
+}
