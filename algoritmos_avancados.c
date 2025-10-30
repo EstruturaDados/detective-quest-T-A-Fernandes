@@ -448,3 +448,40 @@ void explorarSalas(Sala *raiz) {
         printf("\n");
     }
 }
+
+// ------------------------------------------
+// 10. FUNÇÃO PRINCIPAL (MAIN)
+// ------------------------------------------
+
+int main() {
+    // 1. Inicializa as estruturas
+    inicializarHash();
+    
+    // 2. Monta o Mapa (Árvore Binária)
+    Sala *mapa = montarMapa();
+
+    // 3. Preenche a Tabela Hash (Associação Pista -> Suspeito)
+    // OBS: O culpado é a Camila (apontada por 3 pistas)
+    inserirNaHash("A altura do culpado e acima de 1.80m.", "Carlos");
+    inserirNaHash("O culpado fuma charutos cubanos.", "Carlos");
+    inserirNaHash("O culpado possui uma alergia a amendoim.", "Camila");
+    inserirNaHash("O culpado tem um relogio suico de ouro.", "Camila");
+    inserirNaHash("A arma do crime e um castical de bronze.", "Cris");
+    inserirNaHash("O culpado deixou um lenco bordado com a letra 'C'.", "Camila");
+    inserirNaHash("A digital do culpado esta na lamina da faca.", "Cris");
+    printf("\nRegistro de suspeitos e pistas na Tabela Hash concluido.\n");
+
+    // 4. Inicia a Exploração
+    explorarSalas(mapa);
+    
+    // 5. Fase de Julgamento
+    verificarSuspeitoFinal();
+    
+    // 6. Limpeza de Memória
+    liberarMapa(mapa);
+    liberarPistas(raiz_pistas);
+    liberarHash();
+    
+    printf("\nSistema encerrado e toda a memoria dinamica liberada.\n");
+    return 0;
+}
