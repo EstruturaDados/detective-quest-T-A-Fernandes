@@ -359,3 +359,92 @@ void verificarSuspeitoFinal() {
     }
     printf("********************************************************\n");
 }
+
+// ------------------------------------------
+// 9. FUNÇÃO PRINCIPAL DE EXPLORAÇÃO
+// ------------------------------------------
+
+/**
+ * @brief Controla a navegação do jogador, coleta de pistas e interage com a Hash/BST.
+ *
+ * Requisito: Navega pela arvore e ativa o sistema de pistas.
+ */
+void explorarSalas(Sala *raiz) {
+    Sala *atual = raiz;
+    char opcao;
+    
+    printf("\n>>> Detective Quest - Desafio Final: Julgamento <<<\n");
+    printf("Explore, colete pistas e sustente sua acusacao.\n\n");
+
+    while (atual != NULL) {
+        printf("========================================================\n");
+        printf("VOCE ESTA EM: %s\n", atual->nome);
+
+        // Lógica de coleta de pista
+        if (atual->pista_coletada == 0 && atual->pista_estatica[0] != '\0') {
+            
+            // 1. Insere na BST (Pistas coletadas)
+            raiz_pistas = inserirPista(raiz_pistas, atual->pista_estatica);
+            
+            // 2. Marca a pista como coletada para evitar duplicidade
+            atual->pista_coletada = 1; 
+            
+            printf("[PISTA COLETADA] \"%s\"\n", atual->pista_estatica);
+            
+            // 3. Informa a associação da pista (já registrada na Hash)
+            const char *suspeito_relacionado = encontrarSuspeito(atual->pista_estatica);
+            if (strcmp(suspeito_relacionado, "DESCONHECIDO") != 0) {
+                 printf("  [LIGACAO] Essa pista aponta para: %s\n", suspeito_relacionado);
+            }
+        } else {
+            printf("[INFO] Nenhuma pista nova (ou nao ha pista) neste comodo.\n");
+        }
+        
+        // ... (resto da lógica de navegação) ...
+        printf("--------------------------------------------------------\n");
+        printf("Opcoes de caminho:\n");
+
+        int caminhos_disponiveis = 0;
+        if (atual->esquerda != NULL) {
+            printf(" [E] Esquerda: %s\n", atual->esquerda->nome);
+            caminhos_disponiveis = 1;
+        }
+        if (atual->direita != NULL) {
+            printf(" [D] Direita: %s\n", atual->direita->nome);
+            caminhos_disponiveis = 1;
+        }
+
+        if (!caminhos_disponiveis) {
+            printf("[FIM DE CAMINHO] Nenhuma saida adicional.\n");
+        }
+
+        printf(" [S] SAIR do Jogo e Iniciar o Julgamento.\n");
+        printf("--------------------------------------------------------\n");
+        printf("Sua escolha (e/d/s): ");
+
+        if (scanf(" %c", &opcao) != 1) {
+            while (getchar() != '\n');
+            opcao = 's';
+        }
+        opcao = tolower(opcao);
+
+        if (opcao == 'e') {
+            if (atual->esquerda != NULL) {
+                atual = atual->esquerda;
+            } else {
+                printf("[ALERTA] Nao ha caminho a esquerda.\n");
+            }
+        } else if (opcao == 'd') {
+            if (atual->direita != NULL) {
+                atual = atual->direita;
+            } else {
+                printf("[ALERTA] Nao ha caminho a direita.\n");
+            }
+        } else if (opcao == 's') {
+            break;
+        } else {
+            printf("[ERRO] Opcao invalida.\n");
+        }
+        printf("\n");
+    }
+}
